@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import json
 from flask_sqlalchemy import SQLAlchemy
 from flask import g
-
+########
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///note.db'  # "note" adlı veritabanı
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
