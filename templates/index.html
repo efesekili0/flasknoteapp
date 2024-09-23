@@ -1,21 +1,193 @@
 <!DOCTYPE html>
 <html lang="tr">
-    <head>
-        <meta charset = "UTF-8">
-        <title>MY TODO</title>
-    </head>
-    <body>
-        <div>NOTES</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Görev Yönetimi Uygulaması</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #4b4b4b;
+            color: white;
+            display: flex;
+            height: 100vh; /* Tüm ekran yüksekliği */
+        }
+        .sidebar {
+            width: 220px; /* Sabit genişlik */
+            background-color: #333;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #444; /* Kutucuk arka plan rengi */
+            border-radius: 5px; /* Kenar yuvarlama */
+            cursor: pointer;
+            transition: background-color 0.3s; /* Geçiş efekti */
+        }
+        .item:hover {
+            background-color: #555; /* Hover efekti */
+        }
+        .content {
+            flex-grow: 1; /* Sağ alana genişlik verir */
+            padding: 20px; /* İçerik alanının içindeki boşluk */
+            display: none; /* Başlangıçta görünmez */
+            background-color: #555; /* Sağ alan arka plan rengi */
+            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu ekler */
+        }
+        .note-list {
+            margin-top: 20px;
+        }
+        .star {
+            cursor: pointer;
+            color: gold;
+            margin-left: 10px;
+        }
+        .star.filled {
+            color: orange; /* Dolu yıldız rengi */
+        }
+        .add-note {
+            font-size: 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .add-note span {
+            margin-left: 10px; /* "+" işareti ile metin arasındaki boşluk */
+        }
+        .checkbox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%; /* Yuvarlak kutucuk */
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .checkbox.checked::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 10px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    </style>
+    <script>
+        let notes = []; // Notları saklamak için dizi
+        let importantNotes = []; // Önemli notları saklamak için dizi
 
-    </body>
+        function showContent(contentId) {
+            // Tüm içerikleri gizle
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.style.display = 'none');
 
+            // İlgili içeriği göster
+            const selectedContent = document.getElementById(contentId);
+            selectedContent.style.display = 'block';
 
+            // GÜNÜM içeriğinde notları göster
+            if (contentId === 'gunumContent') {
+                displayNotes('gunumNotes', notes);
+            } else if (contentId === 'onemliContent') {
+                displayNotes('onemliNotes', importantNotes);
+            } else if (contentId === 'gorevlerContent') {
+                displayNotes('gorevlerNotes', notes); // GÖREVLER'de de notları göster
+            }
+        }
 
+        function addNote() {
+            const noteInput = document.getElementById('noteInput');
+            const noteText = noteInput.value.trim();
 
+            if (noteText) {
+                notes.push(noteText); // Notu diziye ekle
+                noteInput.value = ''; // Girişi temizle
+                displayNotes('gunumNotes', notes);
+                displayNotes('gorevlerNotes', notes); // GÖREVLER'de notları göster
+            }
+        }
 
+        function displayNotes(listId, noteArray) {
+            const list = document.getElementById(listId);
+            list.innerHTML = ''; // Listeyi temizle
+            noteArray.forEach(note => {
+                const listItem = document.createElement('div');
+                listItem.textContent = note;
 
+                if (listId === 'gorevlerNotes') { // GÖREVLER bölümünde kutucuk ekle
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'checkbox';
+                    checkbox.onclick = () => {
+                        checkbox.classList.toggle('checked'); // Tıklandığında onay işareti ekle veya kaldır
+                    };
+                    listItem.prepend(checkbox); // Kutucuğu notun önüne ekle
+                }
 
+                const star = document.createElement('span');
+                star.textContent = '⭐';
+                star.className = 'star';
+                star.onclick = () => toggleImportant(note, star); // Yıldız simgesine tıklanınca notu önemli yap veya kaldır
 
+                listItem.appendChild(star);
+                list.appendChild(listItem);
+            });
+        }
 
+        function toggleImportant(note, star) {
+            if (importantNotes.includes(note)) {
+                // Not zaten önemliyse kaldır
+                importantNotes = importantNotes.filter(n => n !== note);
+                star.classList.remove('filled'); // Yıldız dolu değil
+            } else {
+                // Not önemli değilse ekle
+                importantNotes.push(note);
+                star.classList.add('filled'); // Yıldız dolu
+            }
+            displayNotes('gunumNotes', notes); // Güncellemeleri göster
+            displayNotes('onemliNotes', importantNotes); // Önemli notlar listesini göster
+            displayNotes('gorevlerNotes', notes); // GÖREVLER'de güncellemeleri göster
+        }
 
+        function showNoteInput() {
+            const noteInputArea = document.getElementById('noteInputArea');
+            noteInputArea.style.display = 'block'; // Not ekleme alanını göster
+            document.getElementById('noteInput').focus(); // Giriş alanına odaklan
+        }
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="item" onclick="showContent('gunumContent')">GÜNÜM</div>
+        <div class="item" onclick="showContent('onemliContent')">ÖNEMLİ</div>
+        <div class="item" onclick="showContent('gorevlerContent')">GÖREVLER</div>
+    </div>
+
+    <div class="content" id="gunumContent">
+        <h2>GÜNÜM</h2>
+        <div class="add-note" onclick="showNoteInput()">
+            + <span>Take Notes</span>
+        </div>
+        <div id="noteInputArea" style="display:none;">
+            <textarea id="noteInput" placeholder="Not ekleyin..." rows="5" cols="50"></textarea>
+            <button onclick="addNote()">Ekle</button>
+        </div>
+        <div class="note-list" id="gunumNotes"></div>
+    </div>
+    <div class="content" id="onemliContent">
+        <h2>ÖNEMLİ</h2>
+        <div class="note-list" id="onemliNotes"></div>
+    </div>
+    <div class="content" id="gorevlerContent">
+        <h2>GÖREVLER</h2>
+        <div class="note-list" id="gorevlerNotes"></div>
+    </div>
+</body>
 </html>
