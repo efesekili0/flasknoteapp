@@ -22,7 +22,7 @@ def home():
 @app.route('/add_note', methods = ['GET','POST'])
 def add_note():
     if request.method == 'POST':
-        note_text = request.form.get['note'] # aldigin notu ismi note olarak kaydet
+        note_text = request.form.get('note') # aldigin notu ismi note olarak kaydet
         new_note = Notes(content = note_text)
         db.session.add(new_note)
         db.session.commit()
